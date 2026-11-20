@@ -1,0 +1,100 @@
+name: Build, audit and deploy ShipYard
+on:
+  push:
+    branches:
+      - feat/shipyard-pages-lighthouse
+      - main
+    paths-ignore:
+      - "evidence/**"
+  workflow_dispatch:
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: pages-deploy
+  cancel-in-progress: false
+jobs:
+  build-and-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Generate OG assets
+        run: python3 scripts/ci-og-images.py
+      - name: Build static production export
+        run: npm run build
+      - name: Verify static assets and generated routes
+        run: node scripts/check-static-export.mjs
+      - name: Serve the static production export
+        run: |
+          mkdir -p .site/shipyard
+          cp -a out/. .site/shipyard/
+          nohup python3 scripts/serve-compressed.py --port 4173 --directory .site >/tmp/shipyard-http.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/shipyard/ >/dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/shipyard-http.log
+          exit 1
+      - name: Measure production app with Mobile Lighthouse
+        run: |
+          mkdir -p evidence
+          npx --yes lighthouse@12.8.2 http://127.0.0.1:4173/shipyard/ \
+            --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage" \
+            --output=json --output=html --output-path=evidence/mobile --quiet
+          ls -lh evidence
+          test -f evidence/mobile.report.html
+          test -f evidence/mobile.report.json
+      - name: Capture actual Lighthouse HTML report screenshot
+        run: |
+          CHROME=$(command -v google-chrome || command -v chromium || command -v chromium-browser)
+          "$CHROME" --headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --hide-scrollbars \
+            --window-size=1400,1040 --virtual-time-budget=5000 \
+            --screenshot=evidence/lighthouse-mobile.png \
+            "file://$PWD/evidence/mobile.report.html"
+          test -s evidence/lighthouse-mobile.png
+      - name: Extract performance score and top opportunities (must be 90+)
+        run: node scripts/score-lighthouse.mjs
+      - name: Upload audit evidence (real Lighthouse report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shipyard-lighthouse-mobile
+          path: evidence/
+          retention-days: 30
+      - name: Commit verified score and screenshot to the feature branch
+        if: success() && github.ref == 'refs/heads/feat/shipyard-pages-lighthouse'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md evidence/lighthouse-mobile.png evidence/lighthouse-summary.md
+          if git diff --cached --quiet; then
+            echo "Audit evidence is unchanged."
+          else
+            git commit -m "docs: attach measured Mobile Lighthouse evidence [skip ci]"
+            git push origin HEAD:feat/shipyard-pages-lighthouse
+          fi
+      - name: Upload GitHub Pages static artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/
+  deploy:
+    needs: build-and-audit
+    if: success()
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Pages publishing is configured in repository Settings > Pages (GitHub Actions).
+      # Do not invoke configure-pages with enablement:true: GITHUB_TOKEN cannot
+      # create a Pages site and fails with "Resource not accessible by integration".
+      - name: Deploy static export
+        id: deployment
+        uses: actions/deploy-pages@v4
