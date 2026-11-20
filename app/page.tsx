@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Catalog from "@/app/components/Catalog";
-export const metadata: Metadata = {title:{absolute:"North Goods — Thoughtful Everyday Objects"},description:"Shop eight curated everyday essentials, from warm lighting and ceramics to bags, audio, and accessories."};
+export const metadata: Metadata = {
+  title: "Shop Curated Everyday Essentials",
+  description: "Browse eight carefully chosen design-led home goods, travel bags, audio essentials and accessories at North Goods.",
+  alternates: {canonical:"/"},
+  openGraph: {type:"website",url:"/",title:"Discover Thoughtful Everyday Goods | North Goods",description:"Explore the curated North Goods collection: useful objects, beautiful details, everyday joy.",images:[{url:"/og-home.png",width:1200,height:630,alt:"A North Goods collection of thoughtful everyday objects"}]},
+  twitter: {card:"summary_large_image",title:"Shop Curated Everyday Essentials | North Goods",description:"Beautifully considered objects for your everyday routines.",images:["/og-home.png"]}
+};
 import { products } from "@/app/data/products";
 export default function HomePage() {
   return <><section className="hero"><div className="container hero-inner">

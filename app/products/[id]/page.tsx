@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductCard from "@/app/components/ProductCard";
@@ -7,8 +8,12 @@ import { getProduct, products, formatPrice } from "@/app/data/products";
 type Props = {params: Promise<{id: string}>};
 export function generateStaticParams() { return products.map(p => ({id:p.id})); }
 export async function generateMetadata({params}:Props):Promise<Metadata> {
-  const {id} = await params; const p = getProduct(id);
-  return p ? {title:p.name,description:p.description,openGraph:{title:p.name,description:p.description,images:[{url:p.image,width:640,height:640,alt:p.imageAlt}]}} : {title:"Product not found",description:"We could not find that item in the North Goods catalog."};
+ const {id}=await params; const p=getProduct(id);
+ if (!p) return {title:"Product Not Found",description:"The requested item is not available in our curated catalog."};
+ return {title:p.name,description:p.description,alternates:{canonical:`/products/${p.id}`},
+  openGraph:{type:"website",url:`/products/${p.id}`,title:`${p.name} - ${p.description.slice(0,48)}`,description:p.description,
+   images:[{url:`/og/products/${p.id}.png`,width:1200,height:630,alt:`${p.name} | North Goods product preview`}]},
+  twitter:{card:"summary_large_image",title:`${p.name} | North Goods`,description:p.description,images:[`/og/products/${p.id}.png`]}};
 }
 export default async function ProductDetail({params}:Props) {
   const {id} = await params; const product = getProduct(id);

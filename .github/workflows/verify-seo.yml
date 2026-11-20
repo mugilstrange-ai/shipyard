@@ -1,0 +1,32 @@
+name: Verify Next.js SEO HTML
+on:
+  push:
+    branches: [seo-evidence]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: python3 scripts/ci-og-images.py
+      - run: npm install --no-audit --no-fund
+      - run: npm run build
+      - name: Inspect Next.js HTML responses and save exact tags
+        run: |
+          npm run start >/tmp/next.log 2>&1 &
+          for i in $(seq 1 40); do
+            curl -fsS http://localhost:3000/ >/dev/null 2>&1 && break
+            sleep 2
+          done
+          node scripts/verify-metadata.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shipyard-seo-html-evidence
+          path: evidence/
