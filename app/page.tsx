@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import Catalog from "@/app/components/Catalog";
+export const metadata: Metadata = {title:{absolute:"North Goods — Thoughtful Everyday Objects"},description:"Shop eight curated everyday essentials, from warm lighting and ceramics to bags, audio, and accessories."};
 import { products } from "@/app/data/products";
 export default function HomePage() {
   return <><section className="hero"><div className="container hero-inner">

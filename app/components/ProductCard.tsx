@@ -1,10 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Product } from "@/app/data/products";
 import { formatPrice } from "@/app/data/products";
 export default function ProductCard({ product }: { product: Product }) {
   return <Link href={`/products/${product.id}`} className="product-card">
     <div className="product-visual" style={{background: product.color}}>
-      <span role="img" aria-label={product.name} className="product-emoji">{product.emoji}</span>
+      <Image src={product.image} alt={product.imageAlt} width={640} height={640} sizes="(max-width: 730px) 50vw, (max-width: 1100px) 33vw, 25vw" className="product-image" />
       {product.badge && <span className="badge">{product.badge}</span>}
       <span className="arrow">↗</span>
     </div>
