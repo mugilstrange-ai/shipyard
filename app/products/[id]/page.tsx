@@ -4,16 +4,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductCard from "@/app/components/ProductCard";
 import LazyReviews from "@/app/components/LazyReviews";
+import { BASE_PATH, assetPath } from "@/app/lib/paths";
 import { getProduct, products, formatPrice } from "@/app/data/products";
 type Props = {params: Promise<{id: string}>};
 export function generateStaticParams() { return products.map(p => ({id:p.id})); }
 export async function generateMetadata({params}:Props):Promise<Metadata> {
  const {id}=await params; const p=getProduct(id);
  if (!p) return {title:"Product Not Found",description:"The requested item is not available in our curated catalog."};
- return {title:p.name,description:p.description,alternates:{canonical:`/products/${p.id}`},
-  openGraph:{type:"website",url:`/products/${p.id}`,title:`${p.name} - ${p.description.slice(0,48)}`,description:p.description,
-   images:[{url:`/og/products/${p.id}.png`,width:1200,height:630,alt:`${p.name} | North Goods product preview`}]},
-  twitter:{card:"summary_large_image",title:`${p.name} | North Goods`,description:p.description,images:[`/og/products/${p.id}.png`]}};
+ return {title:p.name,description:p.description,alternates:{canonical:`${BASE_PATH}/products/${p.id}/`},
+  openGraph:{type:"website",url:`${BASE_PATH}/products/${p.id}/`,title:`${p.name} - ${p.description.slice(0,48)}`,description:p.description,
+   images:[{url:`${BASE_PATH}/og/products/${p.id}.png`,width:1200,height:630,alt:`${p.name} | North Goods product preview`}]},
+  twitter:{card:"summary_large_image",title:`${p.name} | North Goods`,description:p.description,images:[`${BASE_PATH}/og/products/${p.id}.png`]}};
 }
 export default async function ProductDetail({params}:Props) {
   const {id} = await params; const product = getProduct(id);
@@ -21,7 +22,7 @@ export default async function ProductDetail({params}:Props) {
   const related = products.filter(p=>p.id!==id).sort((a,b)=>Number(b.category===product.category)-Number(a.category===product.category)).slice(0,4);
   return <div className="container">
     <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span>/</span><Link href="/#shop">Shop</Link><span>/</span>{product.name}</nav>
-    <section className="detail"><div className="detail-visual" style={{background:product.color}}><Image src={product.image} alt={product.imageAlt} width={800} height={800} sizes="(max-width: 730px) 100vw, 50vw" className="detail-image" priority /></div><div className="detail-copy">
+    <section className="detail"><div className="detail-visual" style={{background:product.color}}><Image src={assetPath(product.image)} alt={product.imageAlt} width={800} height={800} sizes="(max-width: 730px) 100vw, 50vw" className="detail-image" priority /></div><div className="detail-copy">
       <p className="eyebrow">NORTH GOODS / {product.category.toUpperCase()}</p><h1>{product.name}<span>.</span></h1><p className="detail-price">{formatPrice(product.price)}</p><hr/>
       <h2>A little about this one</h2><p className="description">{product.description}</p><h3>The details</h3><ul>{product.features.map(f=><li key={f}>{f}</li>)}</ul>
       <p className="detail-note">✳ Curated with care, for everyday living.</p>

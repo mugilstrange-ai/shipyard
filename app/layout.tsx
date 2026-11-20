@@ -4,15 +4,16 @@ import { DM_Sans, Playfair_Display } from "next/font/google";
 const dmSans = DM_Sans({subsets:["latin"],display:"swap",variable:"--font-dm-sans"});
 const playfair = Playfair_Display({subsets:["latin"],display:"swap",variable:"--font-playfair"});
 import "./globals.css";
+import { BASE_PATH } from "./lib/paths";
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL("https://mugilstrange-ai.github.io"),
   title: { default: "North Goods", template: "%s | North Goods" },
   description: "Discover thoughtfully designed everyday essentials at North Goods.",
   openGraph: {
     type: "website", siteName: "North Goods",
     title: "North Goods - Everyday Objects, Thoughtfully Chosen",
     description: "Design-led everyday essentials for home, travel and work.",
-    images: [{url:"/og-home.png",width:1200,height:630,alt:"North Goods everyday objects collection"}]
+    images: [{url:`${BASE_PATH}/og-home.png`,width:1200,height:630,alt:"North Goods everyday objects collection"}]
   },
   twitter: {card:"summary_large_image"}
 };

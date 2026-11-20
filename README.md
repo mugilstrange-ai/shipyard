@@ -1,26 +1,52 @@
-# Shipyard — North Goods
+# ShipYard — North Goods (Part 3: Shipped)
 
-A Next.js App Router product catalog with TypeScript and responsive styling.
+[![ShipYard deployment workflow](https://github.com/mugilstrange-ai/shipyard/actions/workflows/deploy.yml/badge.svg?branch=feat%2Fshipyard-pages-lighthouse)](https://github.com/mugilstrange-ai/shipyard/actions/workflows/deploy.yml)
 
-## Run
+**Public live URL:** https://mugilstrange-ai.github.io/shipyard/
+
+**Mobile Lighthouse Performance: PENDING** (automatically replaced with the measured score by the Actions audit; we do not invent scores).
+
+The same responsive eight-product Next.js App Router catalog from Parts 1–2, with server-rendered page metadata, typed product cards, product detail pages, and deferred reviews. No new shopping features were added.
+
+## Run locally
+
+Requires Node.js 20+, npm and Python 3 (to generate 10 local Open Graph PNG placeholders used by the metadata pages).
 
 ```bash
 npm install
+python3 scripts/ci-og-images.py
 npm run dev
 ```
 
-Open http://localhost:3000. Build with `npm run build`. No external API or secret keys needed.
+The site runs at **http://localhost:3000/shipyard/** due to its GitHub Pages `basePath`.
 
+## Build the actual production output
 
-## Part 2 — Performance optimization
+```bash
+python3 scripts/ci-og-images.py
+npm run build
+node scripts/check-static-export.mjs
+```
 
-- Product records have local image assets in `public/products/`; every product tile and detail page uses `next/image` with intrinsic dimensions and descriptive alt text.
-- `next/font/google` loads DM Sans and Playfair Display once from the root layout with `display: "swap"`; no CSS Google Fonts import remains.
-- `LazyReviews` defers the interactive Reviews chunk until its section approaches the viewport using IntersectionObserver and `next/dynamic` with a loading fallback. `ssr:false` is confined to a client component.
-- Home page exports `metadata`; dynamic product route generates unique page titles and descriptions via `generateMetadata`.
+Build output: `out/`. `output: "export"`, `basePath: "/shipyard"`, `trailingSlash: true`, and `images: {unoptimized:true}` configure GitHub Pages for the repository subpath. Product SVG assets are prefixed with the base path. Navigation links are adjusted by Next.js.
 
-## Manual verification
+## Performance work
 
-Run `npm install && npm run dev`; visit the homepage, open two different product cards, inspect titles, scroll to the reviews section, check the Network panel for images and deferred reviews chunk. Then run `npm run build`.
+- `next/image` for all product images with explicit width, height and alt text, plus basePath-aware local assets.
+- A high-priority hero illustration with fixed width/height for stable LCP.
+- `next/font/google` self-hosted fonts, with swapping rather than external Google stylesheet requests.
+- `next/dynamic` for the interactive reviews only when near the viewport.
+- `app/loading.tsx` accessible shimmer placeholder, `app/error.tsx` client-side retry boundary, and preserved `app/not-found.tsx`.
+- Unique page metadata and Open Graph images.
 
-Note: Product art is original bundled SVG illustration (not external photo URLs), so files load without requesting third-party assets.
+## GitHub Pages + Lighthouse proof
+
+`.github/workflows/deploy.yml` builds `out/`, serves it on a local production static server, runs a **Mobile Lighthouse audit**, captures a screenshot of the real report, uploads HTML and JSON reports, and deploys via GitHub Pages.
+
+The audit's successful run commits `evidence/lighthouse-mobile.png` and `evidence/lighthouse-summary.md` to this branch, with the measured score added to this README. This is not a screenshot of a development build.
+
+You can review the report image and GitHub Actions run via the PR. If Pages does not auto-enable, set **Settings → Pages → Source → GitHub Actions**; no custom domain is needed.
+
+## SEO routes
+
+Home: `/shipyard/`, About: `/shipyard/about/`, and eight individual product pages under `/shipyard/products/<id>/`.

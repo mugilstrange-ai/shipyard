@@ -24,3 +24,14 @@
 @media(max-width:730px){.review-list{grid-template-columns:1fr}.reviews-block{margin:48px auto}.reviews-heading{flex-direction:column;align-items:start}}
 
 .about-page{max-width:1160px;margin:0 auto;padding:90px 6% 120px}.about-page h1{font:500 clamp(45px,5vw,78px) var(--font-playfair),Georgia,serif;letter-spacing:-.04em}.about-page .lead{font-size:21px;max-width:780px;line-height:1.7;color:#6e736b}.about-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;margin:70px 0;border-top:1px solid #d8d8ce;padding-top:40px}.about-grid p{color:#777e75;line-height:1.8}.about-grid h2{font:500 28px var(--font-playfair),Georgia,serif}.about-number{font-size:11px;letter-spacing:.2em;color:#a66b50}@media(max-width:700px){.about-grid{grid-template-columns:1fr}.about-page{padding:60px 5%}}
+
+/* Static-image sizing and quick-loading hero artwork. */
+.hero-star{display:block;width:min(70%,430px);height:auto;object-fit:contain;filter:drop-shadow(15px 22px 14px #77645455);transform:rotate(-12deg)}
+.product-visual .product-image{display:block;object-fit:cover;aspect-ratio:1/1;width:100%;height:100%}
+.route-loader{min-height:72vh;padding-top:55px;padding-bottom:80px;display:grid;gap:22px;align-content:start}
+.loader-block{background:linear-gradient(90deg,#e9e8e1 25%,#f0efe9 50%,#e9e8e1 75%);background-size:200% 100%;animation:skeleton-shimmer 1.7s linear infinite;border-radius:4px}
+.loader-bar{height:28px;width:44%}.loader-hero{height:220px;width:100%}.loader-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.loader-grid .loader-block{aspect-ratio:1}
+.route-error{min-height:55vh;padding-top:100px;padding-bottom:130px}.route-error h1{font:500 clamp(36px,6vw,65px) var(--font-playfair),Georgia,serif}.route-error p{max-width:550px;color:var(--muted);line-height:1.8}.route-error button{border:0;cursor:pointer}.route-error .secondary-link{display:inline-block;margin-left:25px;text-decoration:underline;font-size:13px}
+@keyframes skeleton-shimmer{to{background-position-x:-200%}}
+@media(max-width:730px){.hero-star{width:210px}.loader-grid{grid-template-columns:repeat(2,1fr)}.loader-bar{width:70%}}
+@media(prefers-reduced-motion:reduce){.loader-block{animation:none}}
