@@ -1,0 +1,27 @@
+import Link from "next/link";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import ProductCard from "@/app/components/ProductCard";
+import LazyReviews from "@/app/components/LazyReviews";
+import { getProduct, products, formatPrice } from "@/app/data/products";
+type Props = {params: Promise<{id: string}>};
+export function generateStaticParams() { return products.map(p => ({id:p.id})); }
+export async function generateMetadata({params}:Props):Promise<Metadata> {
+  const {id} = await params; const p = getProduct(id);
+  return p ? {title:p.name,description:p.description,openGraph:{title:p.name,description:p.description,images:[{url:p.image,width:640,height:640,alt:p.imageAlt}]}} : {title:"Product not found",description:"We could not find that item in the North Goods catalog."};
+}
+export default async function ProductDetail({params}:Props) {
+  const {id} = await params; const product = getProduct(id);
+  if (!product) notFound();
+  const related = products.filter(p=>p.id!==id).sort((a,b)=>Number(b.category===product.category)-Number(a.category===product.category)).slice(0,4);
+  return <div className="container">
+    <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span>/</span><Link href="/#shop">Shop</Link><span>/</span>{product.name}</nav>
+    <section className="detail"><div className="detail-visual" style={{background:product.color}}><Image src={product.image} alt={product.imageAlt} width={800} height={800} sizes="(max-width: 730px) 100vw, 50vw" className="detail-image" priority /></div><div className="detail-copy">
+      <p className="eyebrow">NORTH GOODS / {product.category.toUpperCase()}</p><h1>{product.name}<span>.</span></h1><p className="detail-price">{formatPrice(product.price)}</p><hr/>
+      <h2>A little about this one</h2><p className="description">{product.description}</p><h3>The details</h3><ul>{product.features.map(f=><li key={f}>{f}</li>)}</ul>
+      <p className="detail-note">✳ Curated with care, for everyday living.</p>
+      <Link href="/#shop" className="back">← Continue shopping</Link></div></section>
+    <LazyReviews productName={product.name} />
+    <section className="related"><p className="eyebrow">YOU MAY ALSO LOVE</p><h2>A few more favorites<span>.</span></h2><div className="product-grid">{related.map(p=><ProductCard key={p.id} product={p}/>)}</div></section>
+  </div>;
+}
