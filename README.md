@@ -4,7 +4,7 @@
 
 **Public live URL:** https://mugilstrange-ai.github.io/shipyard/
 
-**Mobile Lighthouse Performance: PENDING** (automatically replaced with the measured score by the Actions audit; we do not invent scores).
+**Mobile Lighthouse Performance: 99/100** (automatically replaced with the measured score by the Actions audit; we do not invent scores).
 
 The same responsive eight-product Next.js App Router catalog from Parts 1–2, with server-rendered page metadata, typed product cards, product detail pages, and deferred reviews. No new shopping features were added.
 
