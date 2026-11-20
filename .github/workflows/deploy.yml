@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p .site/shipyard
           cp -a out/. .site/shipyard/
-          nohup python3 -m http.server 4173 --directory .site >/tmp/shipyard-http.log 2>&1 &
+          nohup python3 scripts/serve-compressed.py --port 4173 --directory .site >/tmp/shipyard-http.log 2>&1 &
           for i in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:4173/shipyard/ >/dev/null; then exit 0; fi
             sleep 2

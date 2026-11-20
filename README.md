@@ -50,3 +50,5 @@ You can review the report image and GitHub Actions run via the PR. If Pages does
 ## SEO routes
 
 Home: `/shipyard/`, About: `/shipyard/about/`, and eight individual product pages under `/shipyard/products/<id>/`.
+
+The Mobile Lighthouse CI audit uses a gzip-enabled static server that serves the already-built `out/` HTML/CSS/JS like a production CDN, avoiding artificially penalizing compression because `python3 -m http.server` does not compress assets.
