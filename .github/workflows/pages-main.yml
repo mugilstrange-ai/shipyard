@@ -1,0 +1,40 @@
+name: Publish ShipYard from verified PR branch
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/pages-main.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages-main-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out verified Part 3 project (PR #3)
+        uses: actions/checkout@v4
+        with:
+          ref: feat/shipyard-pages-lighthouse
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prepare and build production static export
+        run: |
+          npm install --no-audit --no-fund
+          python3 scripts/ci-og-images.py
+          npm run build
+          node scripts/check-static-export.mjs
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
