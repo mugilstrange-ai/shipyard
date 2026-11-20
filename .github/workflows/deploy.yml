@@ -92,10 +92,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Enable or configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      # Pages publishing is configured in repository Settings > Pages (GitHub Actions).
+      # Do not invoke configure-pages with enablement:true: GITHUB_TOKEN cannot
+      # create a Pages site and fails with "Resource not accessible by integration".
       - name: Deploy static export
         id: deployment
         uses: actions/deploy-pages@v4
